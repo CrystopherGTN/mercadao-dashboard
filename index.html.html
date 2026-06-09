@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mercadão do Ferro — Dashboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root {
+    --bg: #0a0a0b;
+    --bg2: #111113;
+    --bg3: #18181c;
+    --border: #222228;
+    --border2: #2e2e38;
+    --text: #f0f0f2;
+    --text2: #8888a0;
+    --text3: #55556a;
+    --accent: #e8541a;
+    --accent2: #ff7a45;
+    --ig: #c13584;
+    --fb: #1877f2;
+    --ads: #e8b21a;
+    --green: #22c55e;
+    --red: #ef4444;
+    --card-radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-left { display: flex; align-items: center; gap: 16px; }
+  .logo-mark {
+    width: 32px; height: 32px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 700; color: white;
+  }
+  .header-title { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+  .header-sub { font-size: 12px; color: var(--text2); margin-top: 1px; }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .last-update { font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
+
+  /* FILTERS */
+  .filters-bar {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 32px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .filter-group { display: flex; align-items: center; gap: 8px; }
+  .filter-label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em; }
+  .filter-input {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    padding: 6px 12px;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .filter-input:focus { border-color: var(--accent); }
+  .btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 7px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .btn:hover { background: var(--accent2); }
+  .btn:active { transform: scale(0.98); }
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border2);
+    color: var(--text2);
+  }
+  .btn-ghost:hover { background: var(--bg3); color: var(--text); }
+  .preset-btns { display: flex; gap: 4px; }
+  .preset-btn {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 11px;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .preset-btn:hover, .preset-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+  .filter-divider { width: 1px; height: 24px; background: var(--border); }
+
+  /* TABS */
+  .tabs {
+    padding: 0 32px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 0;
+    background: var(--bg2);
+  }
+  .tab {
+    padding: 14px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text2);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--text); border-bottom-color: var(--accent); }
+  .tab-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+  }
+
+  /* MAIN */
+  .main { padding: 28px 32px; max-width: 1600px; }
+
+  /* LOADING / ERROR */
+  .state-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--card-radius);
+    padding: 48px;
+    text-align: center;
+    color: var(--text2);
+  }
+  .state-box .icon { font-size: 36px; margin-bottom: 12px; }
+  .state-box h3 { font-size: 16px; color: var(--text); margin-bottom: 8px; }
+  .state-box p { font-size: 13px; line-height: 1.6; }
+  .spinner {
+    width: 32px; height: 32px;
+    border: 3px solid var(--border2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* SECTION */
+  .section { margin-bottom: 32px; }
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title::before {
+    content: '';
+    display: block;
+    width: 3px; height: 14px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  /* KPI GRID */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+  }
+  .kpi-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--card-radius);
+    padding: 18px 20px;
+    transition: border-color 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi-card:hover { border-color: var(--border2); }
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--card-accent, var(--accent));
+    opacity: 0.6;
+  }
+  .kpi-label {
+    font-size: 11px;
+    color: var(--text2);
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .kpi-value {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text);
+  }
+  .kpi-value.small { font-size: 20px; }
+  .kpi-sub {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 6px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .kpi-delta {
+    font-size: 11px;
+    font-weight: 600;
+    margin-top: 6px;
+    display: flex; align-items: center; gap: 3px;
+  }
+  .delta-up { color: var(--green); }
+  .delta-down { color: var(--red); }
+
+  /* CHART CARD */
+  .chart-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--card-radius);
+    padding: 24px;
+  }
+  .chart-title {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .chart-subtitle {
+    font-size: 11px;
+    color: var(--text2);
+    margin-bottom: 20px;
+  }
+  .chart-grid { display: grid; gap: 16px; }
+  .chart-grid-2 { grid-template-columns: 1fr 1fr; }
+  .chart-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  /* MINI CHART (SVG sparkline area) */
+  .sparkline-wrap { height: 60px; }
+  svg.sparkline { width: 100%; height: 100%; overflow: visible; }
+
+  /* BAR CHART */
+  .bar-chart { }
+  .bar-row {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 10px;
+  }
+  .bar-label { font-size: 11px; color: var(--text2); width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar-track { flex: 1; height: 6px; background: var(--bg3); border-radius: 3px; }
+  .bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+  .bar-val { font-size: 11px; font-family: 'JetBrains Mono', monospace; color: var(--text2); width: 60px; text-align: right; }
+
+  /* TABLE */
+  .data-table { width: 100%; border-collapse: collapse; }
+  .data-table th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text3);
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .data-table td {
+    padding: 10px 12px;
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    border-bottom: 1px solid var(--border);
+    color: var(--text2);
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: var(--bg3); color: var(--text); }
+  .data-table td:first-child { color: var(--text); }
+  .table-wrap { overflow-x: auto; }
+
+  /* PLATFORM BADGE */
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .badge-ig { background: rgba(193,53,132,0.15); color: var(--ig); }
+  .badge-fb { background: rgba(24,119,242,0.15); color: var(--fb); }
+  .badge-ads { background: rgba(232,178,26,0.15); color: var(--ads); }
+
+  /* DUAL CHART */
+  .line-chart-container { position: relative; height: 200px; }
+  canvas.line-chart { width: 100% !important; }
+
+  /* HIDDEN */
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* TOOLTIP */
+  .tooltip {
+    position: fixed;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+    pointer-events: none;
+    z-index: 999;
+    display: none;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .header, .filters-bar, .tabs, .main { padding-left: 16px; padding-right: 16px; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .chart-grid-2, .chart-grid-3 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="tooltip" id="tooltip"></div>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-left">
+    <div class="logo-mark">M</div>
+    <div>
+      <div class="header-title">Mercadão do Ferro</div>
+      <div class="header-sub">Performance Dashboard</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="last-update" id="lastUpdate">—</span>
+  </div>
+</header>
+
+<!-- FILTERS -->
+<div class="filters-bar">
+  <div class="filter-group">
+    <span class="filter-label">De</span>
+    <input type="date" class="filter-input" id="dateFrom">
+  </div>
+  <div class="filter-group">
+    <span class="filter-label">Até</span>
+    <input type="date" class="filter-input" id="dateTo">
+  </div>
+  <div class="filter-divider"></div>
+  <div class="preset-btns">
+    <button class="preset-btn" onclick="setPreset(7)">7d</button>
+    <button class="preset-btn" onclick="setPreset(30)">30d</button>
+    <button class="preset-btn active" onclick="setPreset(90)">90d</button>
+    <button class="preset-btn" onclick="setPreset(180)">180d</button>
+  </div>
+  <div class="filter-divider"></div>
+  <button class="btn" onclick="loadData()">Atualizar</button>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('organico')">
+    <div class="tab-dot" style="background:var(--ig)"></div>
+    Orgânico
+  </div>
+  <div class="tab" onclick="switchTab('ads')">
+    <div class="tab-dot" style="background:var(--ads)"></div>
+    Meta Ads
+  </div>
+  <div class="tab" onclick="switchTab('consolidado')">
+    <div class="tab-dot" style="background:var(--accent)"></div>
+    Consolidado
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- TAB: ORGÂNICO -->
+  <div class="tab-content active" id="tab-organico">
+    <div id="organico-loading" class="state-box">
+      <div class="spinner"></div>
+      <h3>Carregando dados orgânicos...</h3>
+      <p>Consultando banco de dados</p>
+    </div>
+    <div id="organico-content" style="display:none">
+
+      <!-- KPIs IG -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title" style="--accent:var(--ig)">Instagram</div>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-card" style="--card-accent:var(--ig)">
+            <div class="kpi-label">👥 Seguidores</div>
+            <div class="kpi-value" id="ig-seguidores">—</div>
+            <div class="kpi-sub" id="ig-seguidores-sub">—</div>
+          </div>
+          <div class="kpi-card" style="--card-accent:var(--ig)">
+            <div class="kpi-label">📈 Alcance Total</div>
+            <div class="kpi-value" id="ig-alcance">—</div>
+            <div class="kpi-sub">no período</div>
+          </div>
+          <div class="kpi-card" style="--card-accent:var(--ig)">
+            <div class="kpi-label">👁 Impressões</div>
+            <div class="kpi-value" id="ig-impressoes">—</div>
+            <div class="kpi-sub">no período</div>
+          </div>
+          <div class="kpi-card" style="--card-accent:var(--ig)">
+            <div class="kpi-label">🔍 Visitas Perfil</div>
+            <div class="kpi-value" id="ig-visitas">—</div>
+            <div class="kpi-sub">no período</div>
+          </div>
+          <div class="kpi-card" style="--card-accent:var(--ig)">
+            <div class="kpi-label">💬 Engajamento</div>
+            <div class="kpi-value" id="ig-engajamento">—</div>
+            <div class="kpi-sub">no período</div>
+          </div>
+          <div class="kpi-card" style="--card-accent:var(--ig)">
+            <div class="kpi-label">❤️ Curtidas</div>
+            <div class="kpi-value" id="ig-curtidas">—</div>
+            <div class="kpi-sub">no período</div>
+          </div>
+          <div class="kpi-card" style="--card-accent:var(--ig)">
+            <div class="kpi-label">💾 Salvamentos</div>
+            <div class="kpi-value" id="ig-salvamentos">—</div>
+            <div class="kpi-sub">no período</div>
+          </div>
+          <div class="kpi-card" style="--card-accent:var(--ig)">
+            <div class="kpi-label">📤 Compartilhamentos</div>
+            <div class="kpi-value" id="ig-compartilhamentos">—</div>
+            <div class="kpi-sub">no período</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPIs FB -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title" style="--accent:var(--fb)">Facebook</div>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-card" style="--card-accent:var(--fb)">
+            <div class="kpi-label">👥 Seguidores</div>
+            <div class="kpi-value" id="fb-seguidores">—</div>
+            <div class="kpi-sub" id="fb-seguidores-sub">—</div>
+          </div>
+          <div class="kpi-card" style="--card-accent:var(--fb)">
+            <div class="kpi-label">❤️ Curtidas Página</div>
+            <div class="kpi-value" id="fb-curtidas">—</div>
+            <div class="kpi-sub">acumulado</div>
+          </div>
+          <div class="kpi-card" style="--card-accent:var(--fb)">
+            <div class="kpi-label">💬 Engajamento</div>
+            <div class="kpi-value" id="fb-engajamento">—</div>
+            <div class="kpi-sub">no período</div>
+          </div>
+          <div class="kpi-card" style="--card-accent:var(--fb)">
+            <div class="kpi-label">📈 Alcance</div>
+            <div class="kpi-value" id="fb-alcance">—</div>
+            <div class="kpi-sub">no período</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHARTS ORGÂNICO -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Evolução de Seguidores</div>
+        </div>
+        <div class="chart-grid chart-grid-2" style="gap:16px">
+          <div class="chart-card">
+            <div class="chart-title">Instagram — Seguidores</div>
+            <div class="chart-subtitle">Evolução diária no período</div>
+            <div class="line-chart-container">
+              <canvas id="chart-ig-seguidores"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">Facebook — Seguidores</div>
+            <div class="chart-subtitle">Evolução diária no período</div>
+            <div class="line-chart-container">
+              <canvas id="chart-fb-seguidores"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Alcance & Impressões — Instagram</div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Alcance vs Impressões diário</div>
+          <div class="chart-subtitle">Comparativo diário no período selecionado</div>
+          <div class="line-chart-container" style="height:220px">
+            <canvas id="chart-ig-alcance-impressoes"></canvas>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TAB: ADS -->
+  <div class="tab-content" id="tab-ads">
+    <div id="ads-loading" class="state-box">
+      <div class="spinner"></div>
+      <h3>Carregando dados de Ads...</h3>
+    </div>
+    <div id="ads-content" style="display:none">
+
+      <!-- KPIs ADS -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Visão Geral — Meta Ads</div>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-card" style="--card-accent:var(--ads)">
+            <div class="kpi-label">💰 Investimento</div>
+            <div class="kpi-value small" id="ads-invest">—</div>
+            <div class="kpi-sub">no período</div>
+          </div>
+          <div class="kpi-card" style="--card-accent:var(--ads)">
+            <div class="kpi-label">📈 Alcance</div>
+            <div class="kpi-value" id="ads-alcance">—</div>
+            <div class="kpi-sub">pessoas únicas</div>
+          </div>
+          <div class="kpi-card" style="--card-accent:var(--ads)">
+            <div class="kpi-label">👁 Impressões</div>
+            <div class="kpi-value" id="ads-impressoes">—</div>
+            <div class="kpi-sub">no período</div>
+          </div>
+          <div class="kpi-card" style="--card-accent:var(--ads)">
+            <div class="kpi-label">🔁 Frequência</div>
+            <div class="kpi-value" id="ads-frequencia">—</div>
+            <div class="kpi-sub">média por pessoa</div>
+          </div>
+          <div class="kpi-card" style="--card-accent:var(--ads)">
+            <div class="kpi-label">🖱 Cliques</div>
+            <div class="kpi-value" id="ads-cliques">—</div>
+            <div class="kpi-sub">no período</div>
+          </div>
+          <div class="kpi-card" style="--card-accent:var(--ads)">
+            <div class="kpi-label">📊 CTR</div>
+            <div class="kpi-value" id="ads-ctr">—</div>
+            <div class="kpi-sub">taxa de clique</div>
+          </div>
+          <div class="kpi-card" style="--card-accent:var(--ads)">
+            <div class="kpi-label">💵 CPC</div>
+            <div class="kpi-value small" id="ads-cpc">—</div>
+            <div class="kpi-sub">custo por clique</div>
+          </div>
+          <div class="kpi-card" style="--card-accent:var(--ads)">
+            <div class="kpi-label">📢 CPM</div>
+            <div class="kpi-value small" id="ads-cpm">—</div>
+            <div class="kpi-sub">custo por mil</div>
+          </div>
+          <div class="kpi-card" style="--card-accent:#22c55e">
+            <div class="kpi-label">🛒 Compras</div>
+            <div class="kpi-value" id="ads-compras">—</div>
+            <div class="kpi-sub">conversões</div>
+          </div>
+          <div class="kpi-card" style="--card-accent:#22c55e">
+            <div class="kpi-label">💸 Valor Conversão</div>
+            <div class="kpi-value small" id="ads-valor-conv">—</div>
+            <div class="kpi-sub">receita atribuída</div>
+          </div>
+          <div class="kpi-card" style="--card-accent:#22c55e">
+            <div class="kpi-label">📦 ROAS</div>
+            <div class="kpi-value" id="ads-roas">—</div>
+            <div class="kpi-sub">retorno sobre invest.</div>
+          </div>
+          <div class="kpi-card" style="--card-accent:#22c55e">
+            <div class="kpi-label">🛍 Custo/Compra</div>
+            <div class="kpi-value small" id="ads-custo-compra">—</div>
+            <div class="kpi-sub">CPA médio</div>
+          </div>
+          <div class="kpi-card" style="--card-accent:#25d366">
+            <div class="kpi-label">💬 Conv. WhatsApp</div>
+            <div class="kpi-value" id="ads-wpp">—</div>
+            <div class="kpi-sub">conversas iniciadas</div>
+          </div>
+          <div class="kpi-card" style="--card-accent:#25d366">
+            <div class="kpi-label">💬 Custo/Conversa</div>
+            <div class="kpi-value small" id="ads-custo-wpp">—</div>
+            <div class="kpi-sub">custo por conversa</div>
+          </div>
+          <div class="kpi-card" style="--card-accent:var(--ads)">
+            <div class="kpi-label">🎬 Video Views</div>
+            <div class="kpi-value" id="ads-video-plays">—</div>
+            <div class="kpi-sub">reproduções</div>
+          </div>
+          <div class="kpi-card" style="--card-accent:var(--ads)">
+            <div class="kpi-label">⏱ Tempo Médio Vídeo</div>
+            <div class="kpi-value" id="ads-video-tempo">—</div>
+            <div class="kpi-sub">segundos</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHARTS ADS -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Investimento Diário</div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Investimento vs Alcance</div>
+          <div class="chart-subtitle">Evolução diária no período</div>
+          <div class="line-chart-container" style="height:220px">
+            <canvas id="chart-ads-invest"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Por Campanha</div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Top Campanhas — Investimento</div>
+          <div class="chart-subtitle">Distribuição no período</div>
+          <div id="chart-campanhas-bar"></div>
+        </div>
+      </div>
+
+      <!-- TABELA CAMPANHAS -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Detalhamento por Campanha</div>
+        </div>
+        <div class="chart-card">
+          <div class="table-wrap">
+            <table class="data-table" id="table-campanhas">
+              <thead>
+                <tr>
+                  <th>Campanha</th>
+                  <th>Objetivo</th>
+                  <th>Invest.</th>
+                  <th>Alcance</th>
+                  <th>Impressões</th>
+                  <th>Cliques</th>
+                  <th>CTR</th>
+                  <th>CPC</th>
+                  <th>Compras</th>
+                  <th>ROAS</th>
+                  <th>Conv. WPP</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-campanhas">
+                <tr><td colspan="11" style="text-align:center;color:var(--text3)">Carregando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TAB: CONSOLIDADO -->
+  <div class="tab-content" id="tab-consolidado">
+    <div id="consol-loading" class="state-box">
+      <div class="spinner"></div>
+      <h3>Carregando visão consolidada...</h3>
+    </div>
+    <div id="consol-content" style="display:none">
+
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Resumo Geral do Período</div>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-label">📱 Seguidores IG</div>
+            <div class="kpi-value" id="c-ig-seg">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">📘 Seguidores FB</div>
+            <div class="kpi-value" id="c-fb-seg">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">💰 Total Investido</div>
+            <div class="kpi-value small" id="c-invest">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">📈 Alcance Orgânico</div>
+            <div class="kpi-value" id="c-alcance-org">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">📈 Alcance Pago</div>
+            <div class="kpi-value" id="c-alcance-pago">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">🛒 Compras</div>
+            <div class="kpi-value" id="c-compras">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">📦 ROAS Médio</div>
+            <div class="kpi-value" id="c-roas">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">💬 Conv. WhatsApp</div>
+            <div class="kpi-value" id="c-wpp">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Alcance Orgânico vs Pago</div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Comparativo de Alcance Diário</div>
+          <div class="chart-subtitle">Orgânico (IG) vs Pago (Ads)</div>
+          <div class="line-chart-container" style="height:220px">
+            <canvas id="chart-consol-alcance"></canvas>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+// =====================
+// CONFIG
+// =====================
+const WEBHOOK_URL = 'https://n8n.gtnmktdigital.com.br/webhook/mercadao-dashboard'; // Trocar pela URL do webhook N8N
+let charts = {};
+let globalData = { organico: [], ads: [] };
+
+// =====================
+// INIT
+// =====================
+document.addEventListener('DOMContentLoaded', () => {
+  setPreset(90);
+  loadData();
+  Chart.defaults.color = '#8888a0';
+  Chart.defaults.borderColor = '#222228';
+  Chart.defaults.font.family = "'Inter', sans-serif";
+});
+
+// =====================
+// DATE PRESETS
+// =====================
+function setPreset(days) {
+  const to = new Date();
+  const from = new Date();
+  from.setDate(to.getDate() - days);
+  document.getElementById('dateTo').value = formatDate(to);
+  document.getElementById('dateFrom').value = formatDate(from);
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+function formatDate(d) {
+  return d.toISOString().split('T')[0];
+}
+
+function fmt(n, decimals = 0) {
+  if (n === null || n === undefined || isNaN(n)) return '—';
+  if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+  if (n >= 1000) return (n/1000).toFixed(1) + 'k';
+  return n.toLocaleString('pt-BR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+}
+
+function fmtBRL(n) {
+  if (n === null || n === undefined || isNaN(n)) return '—';
+  return 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+// =====================
+// LOAD DATA
+// =====================
+async function loadData() {
+  const from = document.getElementById('dateFrom').value;
+  const to = document.getElementById('dateTo').value;
+
+  showLoading(true);
+
+  // Atualiza last update
+  document.getElementById('lastUpdate').textContent = 'Atualizado ' + new Date().toLocaleTimeString('pt-BR');
+
+  try {
+    const res = await fetch(`${WEBHOOK_URL}?from=${from}&to=${to}`);
+    if (!res.ok) throw new Error('Erro na requisição');
+    const data = await res.json();
+    globalData = data;
+    renderAll(data);
+  } catch (e) {
+    // Se webhook não configurado, usa dados demo
+    console.warn('Webhook não disponível, usando dados demo:', e);
+    const demo = generateDemoData(from, to);
+    globalData = demo;
+    renderAll(demo);
+  }
+
+  showLoading(false);
+}
+
+function showLoading(show) {
+  ['organico', 'ads', 'consol'].forEach(t => {
+    const loading = document.getElementById(`${t}-loading`);
+    const content = document.getElementById(`${t}-content`);
+    if (loading) loading.style.display = show ? 'block' : 'none';
+    if (content) content.style.display = show ? 'none' : 'block';
+  });
+}
+
+// =====================
+// RENDER ALL
+// =====================
+function renderAll(data) {
+  const { organico, ads } = data;
+  renderOrganico(organico);
+  renderAds(ads);
+  renderConsolidado(organico, ads);
+}
+
+// =====================
+// ORGÂNICO
+// =====================
+function renderOrganico(organico) {
+  const ig = organico.filter(r => r.plataforma === 'instagram');
+  const fb = organico.filter(r => r.plataforma === 'facebook');
+
+  // Últimos valores IG
+  const igLast = ig[ig.length - 1] || {};
+  const igFirst = ig[0] || {};
+
+  document.getElementById('ig-seguidores').textContent = fmt(igLast.seguidores);
+  const igDelta = (igLast.seguidores || 0) - (igFirst.seguidores || 0);
+  document.getElementById('ig-seguidores-sub').textContent = (igDelta >= 0 ? '+' : '') + fmt(igDelta) + ' no período';
+
+  document.getElementById('ig-alcance').textContent = fmt(ig.reduce((s, r) => s + (r.alcance || 0), 0));
+  document.getElementById('ig-impressoes').textContent = fmt(ig.reduce((s, r) => s + (r.impressoes || 0), 0));
+  document.getElementById('ig-visitas').textContent = fmt(ig.reduce((s, r) => s + (r.visitas_perfil || 0), 0));
+  document.getElementById('ig-engajamento').textContent = fmt(ig.reduce((s, r) => s + (r.engajamento_total || 0), 0));
+  document.getElementById('ig-curtidas').textContent = fmt(ig.reduce((s, r) => s + (r.curtidas || 0), 0));
+  document.getElementById('ig-salvamentos').textContent = fmt(ig.reduce((s, r) => s + (r.salvamentos || 0), 0));
+  document.getElementById('ig-compartilhamentos').textContent = fmt(ig.reduce((s, r) => s + (r.compartilhamentos || 0), 0));
+
+  // FB
+  const fbLast = fb[fb.length - 1] || {};
+  const fbFirst = fb[0] || {};
+  document.getElementById('fb-seguidores').textContent = fmt(fbLast.seguidores);
+  const fbDelta = (fbLast.seguidores || 0) - (fbFirst.seguidores || 0);
+  document.getElementById('fb-seguidores-sub').textContent = (fbDelta >= 0 ? '+' : '') + fmt(fbDelta) + ' no período';
+  document.getElementById('fb-curtidas').textContent = fmt(fbLast.curtidas);
+  document.getElementById('fb-engajamento').textContent = fmt(fb.reduce((s, r) => s + (r.engajamento_total || 0), 0));
+  document.getElementById('fb-alcance').textContent = fmt(fb.reduce((s, r) => s + (r.alcance || 0), 0));
+
+  // Charts
+  const igDates = ig.map(r => r.data);
+  drawLineChart('chart-ig-seguidores', igDates, [
+    { label: 'Seguidores', data: ig.map(r => r.seguidores), color: '#c13584' }
+  ]);
+
+  const fbDates = fb.map(r => r.data);
+  drawLineChart('chart-fb-seguidores', fbDates, [
+    { label: 'Seguidores', data: fb.map(r => r.seguidores), color: '#1877f2' }
+  ]);
+
+  drawLineChart('chart-ig-alcance-impressoes', igDates, [
+    { label: 'Alcance', data: ig.map(r => r.alcance || 0), color: '#c13584' },
+    { label: 'Impressões', data: ig.map(r => r.impressoes || 0), color: '#e8541a' }
+  ]);
+}
+
+// =====================
+// ADS
+// =====================
+function renderAds(ads) {
+  if (!ads.length) return;
+
+  const totalInvest = ads.reduce((s, r) => s + (r.investimento || 0), 0);
+  const totalAlcance = ads.reduce((s, r) => s + (r.alcance || 0), 0);
+  const totalImpress = ads.reduce((s, r) => s + (r.impressoes || 0), 0);
+  const totalCliques = ads.reduce((s, r) => s + (r.cliques || 0), 0);
+  const totalCompras = ads.reduce((s, r) => s + (r.compras || 0), 0);
+  const totalValConv = ads.reduce((s, r) => s + (r.valor_conversao || 0), 0);
+  const totalWpp = ads.reduce((s, r) => s + (r.conversas_wpp || 0), 0);
+  const totalVideoPlays = ads.reduce((s, r) => s + (r.video_plays || 0), 0);
+  const avgFreq = ads.reduce((s, r) => s + (r.frequencia || 0), 0) / ads.length;
+  const avgCTR = totalCliques > 0 && totalImpress > 0 ? (totalCliques / totalImpress * 100) : 0;
+  const avgCPC = totalCliques > 0 ? totalInvest / totalCliques : 0;
+  const avgCPM = totalImpress > 0 ? (totalInvest / totalImpress * 1000) : 0;
+  const avgRoas = totalInvest > 0 ? totalValConv / totalInvest : 0;
+  const avgCustoCompra = totalCompras > 0 ? totalInvest / totalCompras : 0;
+  const avgCustoWpp = totalWpp > 0 ? totalInvest / totalWpp : 0;
+  const avgVideoTempo = ads.filter(r => r.video_tempo_medio > 0).reduce((s, r) => s + (r.video_tempo_medio || 0), 0) / (ads.filter(r => r.video_tempo_medio > 0).length || 1);
+
+  document.getElementById('ads-invest').textContent = fmtBRL(totalInvest);
+  document.getElementById('ads-alcance').textContent = fmt(totalAlcance);
+  document.getElementById('ads-impressoes').textContent = fmt(totalImpress);
+  document.getElementById('ads-frequencia').textContent = avgFreq.toFixed(2) + 'x';
+  document.getElementById('ads-cliques').textContent = fmt(totalCliques);
+  document.getElementById('ads-ctr').textContent = avgCTR.toFixed(2) + '%';
+  document.getElementById('ads-cpc').textContent = fmtBRL(avgCPC);
+  document.getElementById('ads-cpm').textContent = fmtBRL(avgCPM);
+  document.getElementById('ads-compras').textContent = fmt(totalCompras);
+  document.getElementById('ads-valor-conv').textContent = fmtBRL(totalValConv);
+  document.getElementById('ads-roas').textContent = avgRoas.toFixed(2) + 'x';
+  document.getElementById('ads-custo-compra').textContent = fmtBRL(avgCustoCompra);
+  document.getElementById('ads-wpp').textContent = fmt(totalWpp);
+  document.getElementById('ads-custo-wpp').textContent = fmtBRL(avgCustoWpp);
+  document.getElementById('ads-video-plays').textContent = fmt(totalVideoPlays);
+  document.getElementById('ads-video-tempo').textContent = avgVideoTempo.toFixed(1) + 's';
+
+  // Chart invest por dia
+  const byDate = {};
+  ads.forEach(r => {
+    if (!byDate[r.data]) byDate[r.data] = { invest: 0, alcance: 0 };
+    byDate[r.data].invest += r.investimento || 0;
+    byDate[r.data].alcance += r.alcance || 0;
+  });
+  const dates = Object.keys(byDate).sort();
+  drawLineChart('chart-ads-invest', dates, [
+    { label: 'Investimento (R$)', data: dates.map(d => byDate[d].invest), color: '#e8b21a' },
+    { label: 'Alcance', data: dates.map(d => byDate[d].alcance), color: '#e8541a', yAxis: 'y1' }
+  ], true);
+
+  // Bar chart campanhas
+  const byCamp = {};
+  ads.forEach(r => {
+    const k = r.campanha_nome || r.campanha_id || 'Desconhecida';
+    if (!byCamp[k]) byCamp[k] = { invest: 0, alcance: 0, cliques: 0, compras: 0, roas: 0, wpp: 0, objetivo: r.objetivo, ctr: 0, cpc: 0, impressoes: 0 };
+    byCamp[k].invest += r.investimento || 0;
+    byCamp[k].alcance += r.alcance || 0;
+    byCamp[k].cliques += r.cliques || 0;
+    byCamp[k].compras += r.compras || 0;
+    byCamp[k].wpp += r.conversas_wpp || 0;
+    byCamp[k].impressoes += r.impressoes || 0;
+  });
+
+  // Calcular métricas derivadas por campanha
+  Object.keys(byCamp).forEach(k => {
+    const c = byCamp[k];
+    c.ctr = c.impressoes > 0 ? (c.cliques / c.impressoes * 100) : 0;
+    c.cpc = c.cliques > 0 ? c.invest / c.cliques : 0;
+    c.roas = c.invest > 0 ? (ads.filter(r => (r.campanha_nome || r.campanha_id) === k).reduce((s, r) => s + (r.valor_conversao || 0), 0) / c.invest) : 0;
+  });
+
+  const sorted = Object.entries(byCamp).sort((a, b) => b[1].invest - a[1].invest);
+  const maxInvest = sorted[0]?.[1].invest || 1;
+
+  // Bar chart
+  const barHtml = sorted.slice(0, 8).map(([nome, vals]) => `
+    <div class="bar-row">
+      <div class="bar-label" title="${nome}">${nome}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(vals.invest/maxInvest*100).toFixed(1)}%;background:var(--ads)"></div></div>
+      <div class="bar-val">${fmtBRL(vals.invest)}</div>
+    </div>
+  `).join('');
+  document.getElementById('chart-campanhas-bar').innerHTML = barHtml;
+
+  // Tabela
+  const tbody = sorted.map(([nome, vals]) => `
+    <tr>
+      <td>${nome}</td>
+      <td><span class="badge badge-ads">${vals.objetivo || '—'}</span></td>
+      <td>${fmtBRL(vals.invest)}</td>
+      <td>${fmt(vals.alcance)}</td>
+      <td>${fmt(vals.impressoes)}</td>
+      <td>${fmt(vals.cliques)}</td>
+      <td>${vals.ctr.toFixed(2)}%</td>
+      <td>${fmtBRL(vals.cpc)}</td>
+      <td>${fmt(vals.compras)}</td>
+      <td>${vals.roas.toFixed(2)}x</td>
+      <td>${fmt(vals.wpp)}</td>
+    </tr>
+  `).join('');
+  document.getElementById('tbody-campanhas').innerHTML = tbody || '<tr><td colspan="11" style="text-align:center;color:var(--text3)">Sem dados no período</td></tr>';
+}
+
+// =====================
+// CONSOLIDADO
+// =====================
+function renderConsolidado(organico, ads) {
+  const ig = organico.filter(r => r.plataforma === 'instagram');
+  const fb = organico.filter(r => r.plataforma === 'facebook');
+
+  const igLast = ig[ig.length - 1] || {};
+  const fbLast = fb[fb.length - 1] || {};
+
+  document.getElementById('c-ig-seg').textContent = fmt(igLast.seguidores);
+  document.getElementById('c-fb-seg').textContent = fmt(fbLast.seguidores);
+  document.getElementById('c-invest').textContent = fmtBRL(ads.reduce((s, r) => s + (r.investimento || 0), 0));
+  document.getElementById('c-alcance-org').textContent = fmt(ig.reduce((s, r) => s + (r.alcance || 0), 0));
+  document.getElementById('c-alcance-pago').textContent = fmt(ads.reduce((s, r) => s + (r.alcance || 0), 0));
+  document.getElementById('c-compras').textContent = fmt(ads.reduce((s, r) => s + (r.compras || 0), 0));
+  const totalValConv = ads.reduce((s, r) => s + (r.valor_conversao || 0), 0);
+  const totalInvest = ads.reduce((s, r) => s + (r.investimento || 0), 0);
+  document.getElementById('c-roas').textContent = totalInvest > 0 ? (totalValConv / totalInvest).toFixed(2) + 'x' : '—';
+  document.getElementById('c-wpp').textContent = fmt(ads.reduce((s, r) => s + (r.conversas_wpp || 0), 0));
+
+  // Chart consolidado alcance
+  const byDateOrg = {};
+  ig.forEach(r => { byDateOrg[r.data] = r.alcance || 0; });
+
+  const byDatePago = {};
+  ads.forEach(r => {
+    if (!byDatePago[r.data]) byDatePago[r.data] = 0;
+    byDatePago[r.data] += r.alcance || 0;
+  });
+
+  const allDates = [...new Set([...Object.keys(byDateOrg), ...Object.keys(byDatePago)])].sort();
+  drawLineChart('chart-consol-alcance', allDates, [
+    { label: 'Orgânico (IG)', data: allDates.map(d => byDateOrg[d] || 0), color: '#c13584' },
+    { label: 'Pago (Ads)', data: allDates.map(d => byDatePago[d] || 0), color: '#e8b21a' }
+  ]);
+}
+
+// =====================
+// CHART HELPER
+// =====================
+function drawLineChart(id, labels, datasets, dualAxis = false) {
+  if (charts[id]) { charts[id].destroy(); }
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+
+  const ds = datasets.map(d => ({
+    label: d.label,
+    data: d.data,
+    borderColor: d.color,
+    backgroundColor: d.color + '18',
+    borderWidth: 2,
+    pointRadius: labels.length > 60 ? 0 : 2,
+    pointHoverRadius: 4,
+    fill: datasets.length === 1,
+    tension: 0.3,
+    yAxisID: d.yAxis || 'y'
+  }));
+
+  const scales = {
+    x: {
+      grid: { color: '#222228', drawBorder: false },
+      ticks: {
+        maxTicksLimit: 8,
+        callback: (val, i) => {
+          const d = labels[i];
+          if (!d) return '';
+          const parts = d.split('-');
+          return `${parts[2]}/${parts[1]}`;
+        }
+      }
+    },
+    y: {
+      grid: { color: '#222228', drawBorder: false },
+      ticks: { callback: v => fmt(v) }
+    }
+  };
+
+  if (dualAxis) {
+    scales.y1 = {
+      position: 'right',
+      grid: { drawOnChartArea: false },
+      ticks: { callback: v => fmt(v) }
+    };
+  }
+
+  charts[id] = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets: ds },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'top', labels: { boxWidth: 10, padding: 16, font: { size: 11 } } },
+        tooltip: {
+          backgroundColor: '#18181c',
+          borderColor: '#2e2e38',
+          borderWidth: 1,
+          padding: 10,
+          callbacks: {
+            label: ctx => ` ${ctx.dataset.label}: ${fmt(ctx.raw)}`
+          }
+        }
+      },
+      scales
+    }
+  });
+}
+
+// =====================
+// TABS
+// =====================
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', ['organico','ads','consolidado'][i] === tab);
+  });
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+
+  // Re-render charts (canvas precisa estar visível)
+  setTimeout(() => {
+    if (globalData.organico && globalData.ads) renderAll(globalData);
+  }, 50);
+}
+
+// =====================
+// DEMO DATA (fallback)
+// =====================
+function generateDemoData(from, to) {
+  const days = [];
+  const start = new Date(from);
+  const end = new Date(to);
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+    days.push(d.toISOString().split('T')[0]);
+  }
+
+  let igSeg = 12400, fbSeg = 2280;
+  const organico = [];
+  days.forEach((data, i) => {
+    igSeg += Math.floor(Math.random() * 15 - 2);
+    fbSeg += Math.floor(Math.random() * 5 - 1);
+    organico.push({
+      plataforma: 'instagram', data,
+      seguidores: igSeg,
+      alcance: Math.floor(800 + Math.random() * 2000),
+      impressoes: Math.floor(1200 + Math.random() * 3000),
+      visitas_perfil: Math.floor(50 + Math.random() * 200),
+      engajamento_total: Math.floor(20 + Math.random() * 150),
+      curtidas: Math.floor(15 + Math.random() * 120),
+      comentarios: Math.floor(2 + Math.random() * 20),
+      compartilhamentos: Math.floor(1 + Math.random() * 15),
+      salvamentos: Math.floor(5 + Math.random() * 40),
+      stories_alcance: Math.floor(200 + Math.random() * 800),
+      stories_impressoes: Math.floor(300 + Math.random() * 1200),
+    });
+    organico.push({
+      plataforma: 'facebook', data,
+      seguidores: fbSeg,
+      curtidas: fbSeg - 20,
+      engajamento_total: Math.floor(5 + Math.random() * 30),
+      alcance: null, impressoes: null, visitas_perfil: null,
+    });
+  });
+
+  const campanhas = [
+    { id: 'c1', nome: 'Tráfego | Captação seguidores', objetivo: 'LINK_CLICKS' },
+    { id: 'c2', nome: 'Conversão | WhatsApp', objetivo: 'MESSAGES' },
+    { id: 'c3', nome: 'Alcance | Branding', objetivo: 'REACH' },
+  ];
+
+  const ads = [];
+  days.forEach(data => {
+    if (Math.random() > 0.15) {
+      const camp = campanhas[Math.floor(Math.random() * campanhas.length)];
+      const invest = parseFloat((Math.random() * 80 + 20).toFixed(2));
+      const alcance = Math.floor(invest * (80 + Math.random() * 40));
+      const impressoes = Math.floor(alcance * (1.2 + Math.random() * 0.8));
+      const cliques = Math.floor(impressoes * (0.01 + Math.random() * 0.03));
+      const compras = Math.random() > 0.6 ? Math.floor(Math.random() * 5) : 0;
+      const wpp = Math.random() > 0.5 ? Math.floor(Math.random() * 8) : 0;
+      ads.push({
+        data, campanha_id: camp.id, campanha_nome: camp.nome, objetivo: camp.objetivo,
+        investimento: invest, alcance, impressoes,
+        frequencia: parseFloat((impressoes / alcance).toFixed(2)),
+        cliques, ctr: parseFloat((cliques / impressoes * 100).toFixed(2)),
+        cpc: parseFloat((invest / (cliques || 1)).toFixed(2)),
+        cpm: parseFloat((invest / impressoes * 1000).toFixed(2)),
+        cliques_unicos: Math.floor(cliques * 0.85),
+        compras, valor_conversao: compras * (120 + Math.random() * 80),
+        roas: compras > 0 ? parseFloat((compras * 150 / invest).toFixed(2)) : 0,
+        custo_por_compra: compras > 0 ? parseFloat((invest / compras).toFixed(2)) : 0,
+        conversas_wpp: wpp,
+        custo_por_conversa: wpp > 0 ? parseFloat((invest / wpp).toFixed(2)) : 0,
+        video_plays: Math.floor(Math.random() * 500),
+        video_tempo_medio: parseFloat((3 + Math.random() * 10).toFixed(1)),
+      });
+    }
+  });
+
+  return { organico, ads };
+}
+</script>
+</body>
+</html>
